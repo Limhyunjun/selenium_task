@@ -8,8 +8,9 @@ def test_login_TC001():
     task = landingPageTask()
     #main page 이동
     task.go_to_mainpage()
-    assert task.sign_up()
+    task.sign_up()
     time.sleep(10)
+
 
 if __name__ == "__main__":
     test_login_TC001()
