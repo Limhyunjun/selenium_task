@@ -22,13 +22,11 @@ class landingPageClass():
         # 비밀번호 조건이없으므로 id와 동일하게 설정
         self.pw = self.id
         userName_space = wait_for_element(self.driver, By.ID, 'sign-username')
-        print(userName_space)
         userName_space.clear()
         userName_space.send_keys(self.id)
         password_space = wait_for_element(self.driver, By.ID, 'sign-password')
         password_space.clear()
         password_space.send_keys(self.pw)
-        print(signUpBtn)
         self.driver.execute_script("arguments[0].click();", signUpBtn)
         WebDriverWait(self.driver, 3).until(EC.alert_is_present())
         alert = self.driver.switch_to.alert
@@ -91,7 +89,6 @@ class landingPageClass():
     def add_product_to_cart(self,num):
         a = wait_for_elements(self.driver, By.CLASS_NAME, 'h-100')
         numbers = random.sample(range(1,len(a)), num)
-        print(numbers)
         productName = self.add_cart(numbers)
         return productName
 
@@ -101,7 +98,6 @@ class landingPageClass():
         productName = []
         for i in num:
             element_product = scroll_to_element(self.driver,By.XPATH, f"//a[@href='prod.html?idp_={i}' and @class='hrefch']")
-            print(element_product.text)
             productName.append(element_product.text)
             element_product.click()
             productDetailPage.add_to_cart()
