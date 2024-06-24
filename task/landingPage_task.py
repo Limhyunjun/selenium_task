@@ -1,10 +1,7 @@
-from conf.conftest import wait_for_element, is_alert_present, wait_for_elements, scroll_to_element
-from task.productDetail import productDetailPageClass
-from selenium.webdriver.common.by import By
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
+from conf.conftest import get_timeStamp, return_alert_text, input_data, accept_alert, is_alert_present
+from elements.landingPage_element import landingPage
+from task.productDetail_task import productDetailPageClass
 from selenium.common.exceptions import TimeoutException
-from datetime import datetime
 import random
 import time
 
@@ -12,83 +9,96 @@ class landingPageClass():
 
     def __init__(self, driver):
         self.driver = driver
+        self.landing_page_element = landingPage(self.driver)
+
+    def go_to_cartpage(self):
+        # cart page 이동
+        self.landing_page_element.get_cartPage().click()
 
     def sign_up(self):
-        wait_for_element(self.driver, By.ID, 'signin2').click()
-        signUpBtn = wait_for_element(self.driver, By.XPATH, "//button[contains(text(), 'Sign up')]")
-        #id 겹치지않게 timestamp를 활용하여 생성
-        now = datetime.now()
-        self.id = f"test_{now.strftime('%Y%m%d%H%M%S')}"
+        # sign up modal 진입 후 modal 노출 확인
+        self.landing_page_element.get_sign_up().click()
+        assert self.landing_page_element.get_modal_sign_up_btn(), 'signup modal에 signup 버튼을 찾을 수 없음(미달 미노출)'
+
+        # id 겹치지않게 timestamp를 활용하여 생성
         # 비밀번호 조건이없으므로 id와 동일하게 설정
+        self.id = f"test_{get_timeStamp()}"
         self.pw = self.id
-        userName_space = wait_for_element(self.driver, By.ID, 'sign-username')
-        userName_space.clear()
-        userName_space.send_keys(self.id)
-        password_space = wait_for_element(self.driver, By.ID, 'sign-password')
-        password_space.clear()
-        password_space.send_keys(self.pw)
-        self.driver.execute_script("arguments[0].click();", signUpBtn)
-        WebDriverWait(self.driver, 3).until(EC.alert_is_present())
-        alert = self.driver.switch_to.alert
+
+        # userName , PW 입력
+        input_data(self.landing_page_element.get_sign_up_modal_username(), self.id)
+        input_data(self.landing_page_element.get_sign_up_modal_password(), self.pw)
+
+        # signup 버튼 클릭 ( click() 먹히지 않아 javascript로 진행 )
+        self.driver.execute_script("arguments[0].click();", self.landing_page_element.get_modal_sign_up_btn())
+
+        # alert 문구 확인 후 alert 닫기
+        alert_text = return_alert_text(self.driver)
         try:
-            assert alert.text == 'Sign up successful.'
+            assert alert_text == 'Sign up successful.'
         except AssertionError:
-            if self.alert.text == 'This user already exist.':
+            if alert_text == 'This user already exist.':
                 raise Exception("already exist user")
-        alert.accept()
-        while True:
+            else:
+                raise AssertionError('signup fail')
+        finally:
+            accept_alert(self.driver)
+        # 빨라서 안 닫혔을 경우 5초간 다시 닫기 시도 후 실패 시 error raise
+        count = 0
+        while count < 5:
             if not is_alert_present(self.driver):
                 break
-        print('done sign up')
+            else:
+                accept_alert(self.driver)
+                time.sleep(1)
+                count+=1
 
-    def check_login_status(self):
+    # 로그인 상태 확인
+    def check_logout_status(self):
         try:
-            wait_for_element(self.driver, By.ID, 'logout2',2)
+            self.landing_page_element.get_log_out()
             return True
         except TimeoutException:
             return False
 
     def logout(self):
-        wait_for_element(self.driver, By.ID, 'logout2').click()
+        self.landing_page_element.get_log_out().click()
 
     # 로그인 task
     def log_in(self):
-        if self.check_login_status():
+        # login 된 상태면 logout 진행
+        if self.check_logout_status():
             self.logout()
+
         # 로그인 버튼 찾고 존재하는지 확인
-        logInBtn = wait_for_element(self.driver, By.ID, 'login2')
-        assert logInBtn
+        assert self.landing_page_element.get_log_in(5), '5초간 login버튼 미노출'
+
         # 로그인 modal 진입
-        logInBtn.click()
-        # 로그인 modal 진입 대기
-        wait_for_element(self.driver, By.ID, "logInModalLabel")
-        # 회원가입한 정보로 username, password 입력
-        userName_space = wait_for_element(self.driver, By.ID, 'loginusername')
-        userName_space.clear()
-        userName_space.send_keys(self.id)
-        password_space = wait_for_element(self.driver, By.ID, 'loginpassword')
-        password_space.clear()
-        password_space.send_keys(self.pw)
-        logInBtn2 = wait_for_element(self.driver, By.XPATH, "//button[contains(text(), 'Log in')]")
-        logInBtn2.click()
+        self.landing_page_element.get_log_in().click()
+
+        # 로그인 modal 대기
+        self.landing_page_element.get_log_in_modal_label()
+
+        # username, password 입력
+        input_data(self.landing_page_element.get_log_in_modal_username(), self.id)
+        input_data(self.landing_page_element.get_log_in_modal_password(), self.pw)
+
+        # log in modal의 log in btn 클릭
+        self.landing_page_element.get_modal_log_in_btn().click()
+
         try:
-            welcomeWorld = wait_for_element(self.driver, By.ID, 'nameofuser')
-            assert welcomeWorld.text == f"Welcome {self.id}"
-        except:
-            WebDriverWait(self.driver, 10).until(EC.alert_is_present())
-            alert = self.driver.switch_to.alert
-            try:
-                assert alert.text == 'Sign up successful.'
-            except AssertionError:
-                if self.alert.text == 'Wrong password.':
-                    raise Exception("Wrong password.")
-                elif self.alert.text == 'User does not exist.':
-                    raise Exception("User does not exist.")
-            alert.accept()
+            assert self.landing_page_element.get_welcome().text == f"Welcome {self.id}"
+        except AssertionError:
+            if return_alert_text(self.driver) == 'Wrong password.':
+                raise Exception("Wrong password.")
+            elif return_alert_text(self.driver) == 'User does not exist.':
+                raise Exception("User does not exist.")
+            else:
+                raise AssertionError('로그인 후 welcome id 노출 안됨(로그인이 안됬을수도 있음)')
+            accept_alert(self.driver)
 
     def add_product_to_cart(self,num):
-        a = wait_for_elements(self.driver, By.CLASS_NAME, 'h-100')
-        numbers = random.sample(range(1,len(a)), num)
+        numbers = random.sample(range(1,len(self.landing_page_element.get_product_list())), num)
         productName = self.add_cart(numbers)
         return productName
 
@@ -97,7 +107,7 @@ class landingPageClass():
         productDetailPage = productDetailPageClass(self.driver)
         productName = []
         for i in num:
-            element_product = scroll_to_element(self.driver,By.XPATH, f"//a[@href='prod.html?idp_={i}' and @class='hrefch']")
+            element_product = self.landing_page_element.get_product(i)
             productName.append(element_product.text)
             element_product.click()
             productDetailPage.add_to_cart()
@@ -106,5 +116,5 @@ class landingPageClass():
         return productName
 
     def go_to_home(self):
-        wait_for_element(self.driver, By.XPATH, "//a[@class='nav-link' and @href='index.html']").click()
+        self.landing_page_element.get_product_logo().click()
 

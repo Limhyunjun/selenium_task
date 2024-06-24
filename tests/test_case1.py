@@ -51,8 +51,8 @@ def test_TC003(set_get_id_pw):
     landingPage.id = set_get_id_pw['id']
     landingPage.pw = set_get_id_pw['pw']
     landingPage.log_in()
+    landingPage.go_to_cartpage()
     cartPage = cartPageClass(baseclass.driver)
-    cartPage.go_to_cartpage()
     cartPage.clear_cart()
     landingPage.go_to_home()
     landingPage.add_product_to_cart(3)
@@ -60,19 +60,32 @@ def test_TC003(set_get_id_pw):
 
 """ 
 TC004 - 과제 요구사항 flow
+1. https://www.demoblaze.com/index.html 사이트에서 사용자 가입(SignUp) 진행
+2. 가입 완료 후 가입한 ID,PWD로 로그인(Log in)을 수행
+3. 로그인 완료 후 제품을 클릭하여 제품 설명 페이지로 이동
+4. 제품 페이지에서 "Add to cart" 클릭하여 제품을 Cart에 저장
+5. 다른 제품을 3가지 이상 Cart에 저장
+6. 상단 Cart 메뉴를 클릭하여 Cart 페이지에 정상적으로 제품 저장 확인
+7. Cart 제품 중 1가지 이상 삭제 ( 전체 삭제 )
 """
+# @pytest.mark.skip
 def test_TC004(set_get_id_pw):
-    # 사이트에서 사용자 가입이 가능하다.
+    # 1. https://www.demoblaze.com/index.html 사이트에서 사용자 가입(SignUp) 진행
     baseclass = BaseClass()
-    # main page 이동
     baseclass.go_to_mainpage()
     landingPage = landingPageClass(baseclass.driver)
     landingPage.sign_up()
+    # 2. 가입 완료 후 가입한 ID,PWD로 로그인(Log in)을 수행
     landingPage.log_in()
     landingPage.go_to_home()
+    # 3. 로그인 완료 후 제품을 클릭하여 제품 설명 페이지로 이동
+    # 4. 제품 페이지에서 "Add to cart" 클릭하여 제품을 Cart에 저장
+    # 5. 다른 제품을 3가지 이상 Cart에 저장
     productName = landingPage.add_product_to_cart(3)
+    # 6. 상단 Cart 메뉴를 클릭하여 Cart 페이지에 정상적으로 제품 저장 확인
+    landingPage.go_to_cartpage()
     cartPage = cartPageClass(baseclass.driver)
-    cartPage.go_to_cartpage()
     cartPage.confirm_cart(productName)
+    # 7. Cart 제품 중 1가지 이상 삭제 ( 전체 삭제 )
     cartPage.clear_cart()
     landingPage.go_to_home()

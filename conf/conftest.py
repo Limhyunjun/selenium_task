@@ -4,6 +4,7 @@ from selenium.common.exceptions import TimeoutException
 from selenium.common.exceptions import NoAlertPresentException
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+from datetime import datetime
 
 @pytest.fixture(scope='session')
 def set_get_id_pw():
@@ -51,6 +52,15 @@ def scroll_to_element(driver, by, value, timeout=10):
         print(f"An error occurred: {e}")
     return element
 
+# timestamp 반환
+def get_timeStamp():
+    now = datetime.now()
+    return now.strftime('%Y%m%d%H%M%S')
+
+# 전달받은 data를 전달받은 element 초기화 후 입력
+def input_data(element,data):
+    element.clear()
+    element.send_keys(data)
 
 
 
