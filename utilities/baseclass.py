@@ -14,6 +14,9 @@ class BaseClass():
         # webdriver.Chrome에 service 객체 전달
         self.driver = webdriver.Chrome(service=service)
 
+        # 창크기 최대화
+        self.driver.maximize_window()
+
     def go_to_mainpage(self):
         self.driver.get("https://www.demoblaze.com/index.html")
         wait_for_element(self.driver, By.ID, 'signin2')
