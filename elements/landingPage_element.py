@@ -2,7 +2,7 @@ from conf.conftest import wait_for_element, scroll_to_element, wait_for_elements
 from selenium.webdriver.common.by import By
 
 
-class landingPage():
+class landingPageElement():
     # 상단 product store 로고
     product_store_logo = "//a[@class='nav-link' and @href='index.html']"
     # 상단 네비게이션 signup

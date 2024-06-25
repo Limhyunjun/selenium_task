@@ -1,8 +1,7 @@
-from conf.conftest import wait_for_element
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service as ChromeService
 from webdriver_manager.chrome import ChromeDriverManager
-from selenium.webdriver.common.by import By
+from elements.landingPage_element import landingPageElement
 
 class BaseClass():
 
@@ -19,6 +18,7 @@ class BaseClass():
 
     def go_to_mainpage(self):
         self.driver.get("https://www.demoblaze.com/index.html")
-        wait_for_element(self.driver, By.ID, 'signin2')
+        landing_page = landingPageElement(self.driver)
+        assert landing_page.get_product_logo(), 'main 페이지 진입으로 판단되지 않음'
 
 

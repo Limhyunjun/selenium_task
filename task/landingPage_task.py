@@ -1,5 +1,5 @@
 from conf.conftest import get_timeStamp, return_alert_text, input_data, accept_alert, is_alert_present
-from elements.landingPage_element import landingPage
+from elements.landingPage_element import landingPageElement
 from task.productDetail_task import productDetailPageClass
 from selenium.common.exceptions import TimeoutException
 import random
@@ -9,7 +9,7 @@ class landingPageClass():
 
     def __init__(self, driver):
         self.driver = driver
-        self.landing_page_element = landingPage(self.driver)
+        self.landing_page_element = landingPageElement(self.driver)
 
     def go_to_cartpage(self):
         # cart page 이동
