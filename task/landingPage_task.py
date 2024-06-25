@@ -77,7 +77,7 @@ class landingPageClass():
         self.landing_page_element.get_log_in().click()
 
         # 로그인 modal 대기
-        self.landing_page_element.get_log_in_modal_label()
+        assert self.landing_page_element.get_log_in_modal_label()
 
         # username, password 입력
         input_data(self.landing_page_element.get_log_in_modal_username(), self.id)
