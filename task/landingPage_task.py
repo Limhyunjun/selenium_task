@@ -95,7 +95,6 @@ class landingPageClass():
                 raise Exception("User does not exist.")
             else:
                 raise AssertionError('로그인 후 welcome id 노출 안됨(로그인이 안됬을수도 있음)')
-            accept_alert(self.driver)
 
     def add_product_to_cart(self,num):
         numbers = random.sample(range(1,len(self.landing_page_element.get_product_list())), num)
